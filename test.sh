@@ -22,5 +22,6 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 pushd "$SCRIPT_DIR"/.. > /dev/null
 
+source detcon/.venv/bin/activate
 python -m detcon.main_loop --is_test=True
 echo "Finished sanity test!"
