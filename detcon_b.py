@@ -232,7 +232,7 @@ class PretrainExperiment(pretrain_common.BaseExperiment):
 
     inputs = augmentations.postprocess(inputs, rng)
 
-    online_network_out, online_state = self.forward.apply(
+    online_network_out, online_state = self.forward.apply( # calls self._forward
         params=online_params,
         state=online_state,
         rng=rng,
@@ -244,6 +244,10 @@ class PretrainExperiment(pretrain_common.BaseExperiment):
         rng=rng,
         inputs=inputs,
         is_training=True)
+    
+    # online_network_out and target_network_out are dicts with the same keys
+    # however, for the target network, we are interested in *projection*, whereas
+    # for the the online network we are interested in the *prediction*
 
     # Representation loss
 
@@ -251,8 +255,30 @@ class PretrainExperiment(pretrain_common.BaseExperiment):
     # respect to online parameters only in `optax.apply_updates`. We leave it to
     # indicate that gradients are not backpropagated through the target network.
 
+    with open("detcon/tensor_shapes_onlinenetwork.txt", "w") as f:
+      f.write("|name|shape|dtype|\n |------|------|------|\n")
+      for key, val in online_network_out.items():
+        if isinstance(val, jnp.ndarray):
+          f.write(f"|{key}|{val.shape}|{val.dtype}|\n")
+    with open("detcon/tensor_shapes_targetnetwork.txt", "w") as f:
+      f.write("|name|shape|dtype|\n |------|------|------|\n")
+      for key, val in target_network_out.items():
+        if isinstance(val, jnp.ndarray):
+          f.write(f"|{key}|{val.shape}|{val.dtype}|\n")
+    with open("detcon/other_params.txt", "w") as f:
+      f.write(f"num_classes\t {self.dataset_adapter.num_classes}")
+
     repr_loss = 0.0
     if self.config.training_mode != 'supervised':
+      with open("detcon/masks_same_view1.txt", "w") as f:
+        stat = (online_network_out['mask_ids_view1'] == target_network_out['mask_ids_view1']).all()
+        f.write(str(stat))
+        # f.write(str(jnp.unique(online_network_out['mask_ids_view1'][0])))
+      with open("detcon/masks_same_view2.txt", "w") as f:
+        stat = (online_network_out['mask_ids_view2'] == target_network_out['mask_ids_view2']).all()
+        f.write(str(stat))
+        # f.write(str(jnp.unique(online_network_out['mask_ids_view2'][0])))
+
       repr_loss = losses.byol_nce_detcon(
           online_network_out['prediction_view1'],
           online_network_out['prediction_view2'],
@@ -311,6 +337,7 @@ class PretrainExperiment(pretrain_common.BaseExperiment):
       Tuple containing the updated Byol state after processing the inputs, and
       various logs.
     """
+    # optimization related stuff
     online_params = byol_state.online_params
     target_params = byol_state.target_params
     online_state = byol_state.online_state

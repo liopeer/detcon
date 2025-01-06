@@ -1,0 +1,3 @@
+Traced<ShapedArray(bool[])>with<BatchTrace(level=1/0)>
+  with val = DeviceArray([ True], dtype=bool)
+       batch_dim = 0

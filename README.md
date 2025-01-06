@@ -1,3 +1,17 @@
+# Notes by Lionel
+## Code Orientation
+ - the main update step happens in `detcon_b.py`, in `PretrainExperiment`'s `_update_fn`
+ - the loss function is in `utils/losses.py`
+
+## Installation of Dependencies
+ 1. `requirements.txt` has been updated
+ 2. create Python 3.8 environment and install, e.g. with `uv`
+```bash
+uv venv --python=3.8
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+
 # Code for DetCon
 
 This repository contains code for the ICCV 2021 paper

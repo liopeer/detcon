@@ -1,0 +1,10 @@
+|name|shape|dtype|
+ |------|------|------|
+|projection_view1|(4, 16, 256)|float32|
+|prediction_view1|(4, 16, 256)|float32|
+|mask_ids_view1|(4, 16)|int32|
+|logits_view1|(4, 1000)|float32|
+|projection_view2|(4, 16, 256)|float32|
+|prediction_view2|(4, 16, 256)|float32|
+|mask_ids_view2|(4, 16)|int32|
+|logits_view2|(4, 1000)|float32|
